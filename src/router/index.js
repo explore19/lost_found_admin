@@ -84,6 +84,18 @@ export const constantRoutes = [
         meta: { title: '物品管理', icon: 'item' }
       }
     ]
+  }, {
+    path: '/rotation-chart',
+    component: Layout,
+    redirect: '/rotation-chart/index',
+    children: [
+      {
+        path: 'index',
+        name: 'RotationChart',
+        component: () => import('@/views/rotation-chart/index'),
+        meta: { title: '轮播图管理', icon: 'rotation-chart' }
+      }
+    ]
   },
 
   // 404 page must be placed at the end !!!

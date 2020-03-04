@@ -6,8 +6,8 @@ import { getToken } from '@/utils/auth'
 // create an axios instance
 const service = axios.create({
   // baseURL: 'http://autohomework.top', // url = base url + request url
-  baseURL: 'https://xyzliu.cn:8000', // url = base url + request url
-  // baseURL: 'http://39.108.220.199:8888', // url = base url + request url
+  baseURL: 'https://localhost:8000', // url = base url + request url
+  //  baseURL: 'https://xyzliu.cn:8000', // url = base url + request url
   timeout: 1000 * 10, // request timeout
   withCredentials: true
 })

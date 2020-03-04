@@ -85,7 +85,7 @@
     </el-table>
 
     <el-dialog
-      :title="`个人信息`"
+      :title="`修改信息`"
       :visible.sync="showDialog"
       @close="showDialog = false"
     >
@@ -169,30 +169,35 @@ export default {
       this.showDialog = true
     },
     handleSave() {
-      if (this.item.id) {
-        putItem({ name: this.editForm.name, id: this.item.id }).then((res) => {
-          if (res.status === 0) {
-            this.resetForm()
-            this.showDialog = false
-            this.$message({
-              type: 'success',
-              message: '修改成功!'
-            })
-            this.requestData()
-          }
-        })
-      } else {
-        createItem(this.editForm).then((res) => {
-          if (res.status === 0) {
-            this.showDialog = false
-            this.$message({
-              type: 'success',
-              message: '添加成功!'
-            })
-            this.requestData()
-          }
-        })
-      }
+      this.$refs['editForm'].validate((valid) => {
+        if (!valid) {
+          return false
+        }
+        if (this.item.id) {
+          putItem({ name: this.editForm.name, id: this.item.id }).then((res) => {
+            if (res.status === 0) {
+              this.resetForm()
+              this.showDialog = false
+              this.$message({
+                type: 'success',
+                message: '修改成功!'
+              })
+              this.requestData()
+            }
+          })
+        } else {
+          createItem(this.editForm).then((res) => {
+            if (res.status === 0) {
+              this.showDialog = false
+              this.$message({
+                type: 'success',
+                message: '添加成功!'
+              })
+              this.requestData()
+            }
+          })
+        }
+      })
     },
     handleDelete(id) {
       this.$confirm(`确定删除吗？`, '提示', {
