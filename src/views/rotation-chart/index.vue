@@ -11,7 +11,7 @@
       >
         <el-input
           v-model="queryOptions.name"
-          placeholder="请输入物品名称"
+          placeholder="请输入轮播图名称"
         />
       </el-form-item>
       <el-form-item>
@@ -170,7 +170,7 @@ export default {
   },
   methods: {
     requestData() {
-      queryRotationChart().then((res) => {
+      queryRotationChart({ name: this.queryOptions.name }).then((res) => {
         if (res.status === 0) {
           this.data = res.data
           this.loading = false

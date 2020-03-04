@@ -1,9 +1,10 @@
 import request from '@/utils/request'
 
-export function queryRotationChart() {
+export function queryRotationChart(params) {
   return request({
     url: '/rotation_chart/find_rotation',
-    method: 'get'
+    method: 'get',
+    params
   })
 }
 
