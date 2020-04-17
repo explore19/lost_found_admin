@@ -15,3 +15,16 @@ export function deletePost(id) {
   })
 }
 
+export function queryreply(params) {
+  return request({
+    url: '/post/query_all_reply',
+    method: 'get',
+    params
+  })
+}
+export function deletereply(id) {
+  return request({
+    url: '/reply/' + id,
+    method: 'delete'
+  })
+}

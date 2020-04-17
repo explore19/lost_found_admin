@@ -6,9 +6,7 @@
       :model="queryOptions"
       @submit.native.prevent="handleFilter"
     >
-      <el-form-item
-        prop="nickName"
-      >
+      <el-form-item prop="nickName">
         <el-input
           v-model="queryOptions.nickName"
           placeholder="请输入用户昵称"
@@ -113,19 +111,23 @@
       <el-container>
         <el-aside width="100px" />
         <el-main>
-          <span> <svg-icon icon-class="head" />
-            头像: <el-avatar shape="square" size="small" :src="user.headPortrait" /></span><br><br>
-          <span> <i
-            class="el-icon-user"
-          />
+          <span>
+
+            <el-avatar
+              shape="square"
+
+              src="user.headPortrait"
+            /></span>
+          <br><br>
+          <span> <i class="el-icon-user" />
             真实姓名:{{ user.realName }}</span><br><br>
-          <span> <svg-icon icon-class="sex" />
+          <span>
+            <svg-icon icon-class="sex" />
             性别:{{ user.sex?user.sex:'未填写' }}</span><br><br>
-          <span> <i
-            class="el-icon-mobile"
-          />
+          <span> <i class="el-icon-mobile" />
             手机:{{ user.phone?user.phone:'未填写' }}</span><br><br>
-          <span> <svg-icon icon-class="qq" />
+          <span>
+            <svg-icon icon-class="qq" />
             QQ:{{ user.qq ?user.qq:'未填写' }}</span><br><br>
 
         </el-main>
@@ -162,7 +164,7 @@ export default {
   },
   methods: {
     requestData() {
-      queryUser(this.queryOptions).then((res) => {
+      queryUser(this.queryOptions).then(res => {
         if (res.status === 0) {
           this.data = res.data.list
           this.total = res.data.total
@@ -171,7 +173,7 @@ export default {
       })
     },
     handleSelect(select) {
-      this.selectUserId = select.map((item) => {
+      this.selectUserId = select.map(item => {
         return item.id
       })
     },
@@ -179,7 +181,7 @@ export default {
       this.$confirm(`确定封禁(解禁)用户吗？`, '提示', {
         type: 'warning'
       }).then(() => {
-        forbidUser(id).then((res) => {
+        forbidUser(id).then(res => {
           if (res.status === 0) {
             this.requestData()
             this.$message({
@@ -206,8 +208,6 @@ export default {
       this.queryOptions.page = val
       this.requestData()
     }
-
   }
-
 }
 </script>

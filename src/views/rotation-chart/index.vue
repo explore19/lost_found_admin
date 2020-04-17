@@ -39,8 +39,8 @@
             <span>名称{{ item.name }}</span>
             <span>优先级{{ item.priority }}</span>
             <div class="bottom clearfix">
-              <el-button class="button" @click="handleEdit(item)">编辑</el-button>
-              <el-button class="button" @click="handleDelete(item.id)">删除</el-button>
+              <el-button type="primary" icon="el-icon-edit" @click="handleEdit(item)" />
+              <el-button type="primary" icon="el-icon-delete" @click="handleDelete(item.id)" />
             </div>
           </div>
         </el-card>
@@ -81,7 +81,7 @@
         <el-form-item prop="image" label="图片上传">
           <el-upload
             class="avatar-uploader"
-            action="https://localhost:8000/upload/image"
+            action="https://xyzliu.cn:8000/upload/image"
             :show-file-list="false"
             :on-success="handleImageSuccess"
             :before-upload="beforeImageUpload"
@@ -184,7 +184,7 @@ export default {
     },
     handleImageSuccess(res, file) {
       if (res.status === 0) {
-        this.editForm.image = 'https://localhost:8000/img/' + res.data
+        this.editForm.image = 'https://xyzliu.cn:8000/img/' + res.data
       }
     },
     beforeImageUpload(file) {

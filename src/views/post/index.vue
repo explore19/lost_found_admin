@@ -42,12 +42,13 @@
     <el-table
       v-loading="loading"
       :data="data"
-      border
+      stripe
       fit
-      highlight-current-row
+      border
       style="width: 100%;"
       @selection-change="handleSelect"
     >
+
       <el-table-column
         v-if="showCheckbox"
         type="selection"
@@ -69,17 +70,6 @@
         prop="post.details"
         label="帖子详情"
       />
-
-      <!-- <el-table-column
-        align="center"
-        prop="post.loseTime"
-        label="丢失时间"
-      />
-      <el-table-column
-        align="center"
-        prop="post.contact"
-        label="联系方式"
-      /> -->
       <el-table-column
         align="center"
         label="帖子类型"
@@ -114,17 +104,18 @@
         label="操作"
       >
         <template slot-scope="scope">
-          <el-button
+          <!-- <el-button
             v-if="scope.row.post.status!==1"
             size="mini"
             @click="handlePersonInfo(scope.row)"
           >
             查看帖子详情
-          </el-button>
+          </el-button> -->
           <el-button
             v-if="scope.row.post.status===1"
             type="primary"
             size="mini"
+            @click="handlePost(scope.row)"
           >
 
             审核
@@ -153,40 +144,79 @@
     />
 
     <el-dialog
-      :title="`个人信息`"
-      :visible.sync="showDialog"
+      :title="`帖子详情`"
+      :visible.sync="showpostDetail"
       width="30%"
-      @close="showDialog = false"
+      @close="showpostDetail = false"
     >
-      <!-- <el-container>
-        <el-aside width="100px" />
-        <el-main>
-          <span> <svg-icon icon-class="head" />
-            头像: <el-avatar shape="square" size="small" :src="user.headPortrait" /></span><br><br>
-          <span> <i
-            class="el-icon-user"
-          />
-            真实姓名:{{ user.realName }}</span><br><br>
-          <span> <svg-icon icon-class="sex" />
-            性别:{{ user.sex?user.sex:'未填写' }}</span><br><br>
-          <span> <i
-            class="el-icon-mobile"
-          />
-            手机:{{ user.phone?user.phone:'未填写' }}</span><br><br>
-          <span> <svg-icon icon-class="qq" />
-            QQ:{{ user.qq ?user.qq:'未填写' }}</span><br><br>
+      <el-form label-position="left" inline class="demo-table-expand">
+        <el-form-item label="物品名称">
+          <span>{{ post.name }}</span>
+        </el-form-item>
+        <el-form-item label="丢失地点">
+          <span>{{ post.lostPlace }}</span>
+        </el-form-item>
+        <el-form-item label="丢失时间">
+          <span>{{ post.loseTime }}</span>
+        </el-form-item>
+        <el-form-item label="手机号码">
+          <span>{{ post.contact }}</span>
+        </el-form-item>
+        <el-form-item label="物品详情">
+          <span>{{ post.details }}</span>
+        </el-form-item>
+        <div class="demo-image_lazy" style="margin:0px 0px 15px 0px;">
+          <el-image v-for="url in image" :key="url" :src="url" lazy style="margin: 5px 0px" />
+        </div>
+        <div v-for="(item,index) in replyList" :key="index" class="block" style="margin: 20px 0px">
+          <div>
+            <el-avatar :size="40" :src="item.replyUserPortrait" />
+            <el-form-item>
+              <span style="margin-left:10px;"><span style="color:#2a5caa;">{{ item.replyUserName }}</span>：{{ item.info }}</span>
 
-        </el-main>
-        <el-aside width="100px" /> -->
-      <!-- </el-container> -->
+              <span style="font-size:7px;display:block;margin-left:10px;">{{ item.createTime }} <el-button type="text" @click.prevent="removereply(item.id)">删除</el-button></span>
+
+            </el-form-item>
+          </div>
+
+          <div v-for="(item2,index2) in item.replys" :key="index2" class="block" style="margin: 10px 40px">
+            <div> <el-avatar :size="30" :src="item2.headPortrait" />
+              <el-form-item>
+                <span v-if="item.id==item2.reply.replyId" style="margin-left:10px;color:#2a5caa;">{{ item2.nickName }}：{{ item2.reply.info }}</span>
+                <span v-if="item.id!=item2.reply.replyId" style="margin-left:10px;"><span style="color:#2a5caa;">{{ item2.nickName }}</span> 回复 <span style="color:#2a5caa;">{{ item2.replyedUserNickName }}</span>：{{ item2.reply.info }}</span>
+                <span style="font-size:7px;display:block;margin-left:10px;">{{ item2.reply.createTime }} <el-button type="text" @click.prevent="removereply(item2.reply.id)">删除</el-button></span>
+              </el-form-item></div>
+
+          </div>
+        </div>
+
+        <el-form-item><el-button>审核不通过</el-button>
+          <el-button type="primary">审核通过</el-button>
+        </el-form-item>
+
+      </el-form>
 
     </el-dialog>
 
   </div>
 </template>
 
+<style>
+  .demo-table-expand {
+    font-size: 0;
+  }
+  .demo-table-expand label {
+    width: 90px;
+    color: #99a9bf;
+  }
+  .demo-table-expand .el-form-item {
+    margin-right: 0;
+    margin-bottom: 0;
+    width: 50%;
+  }
+</style>
 <script lang="ts">
-import { queryPost, deletePost } from '@/api/post'
+import { queryPost, deletePost, queryreply, deletereply } from '@/api/post'
 
 export default {
   name: 'Post',
@@ -203,7 +233,26 @@ export default {
       total: 0,
       loading: true,
       showCheckbox: false,
-      showDialog: false
+      showDialog: false,
+      post: {},
+      showpostDetail: false,
+      image: [],
+      hasImg: false,
+      firstFloorReply: {
+        replyUserPortrait: '',
+        replyUserName: '',
+        info: '',
+        createTime: '',
+        replys: []
+      },
+      replyForm: {
+        replyId: -1,
+        type: 0,
+        postId: '',
+        info: ''
+      },
+      replyList: []
+
     }
   },
   created() {
@@ -219,10 +268,71 @@ export default {
         }
       })
     },
+    removereply(id) {
+      deletereply(id).then((res) => {
+        console.log(res)
+      })
+    },
     handleSelect(select) {
       this.selectUserId = select.map((item) => {
         return item.id
       })
+    },
+    handlePost(post) {
+      this.replyForm.postId = post.post.id
+      queryreply({ postId: post.post.id }).then((res) => {
+        if (res.status === 0) {
+          const replyList = []
+          this.recursionReply(res.data, replyList)
+          this.replyList = replyList
+          console.log(this.replyList)
+        }
+      })
+      this.post = post.post
+      this.showpostDetail = true
+      if (post.post.image == null) {
+        this.hasImg = false
+      } else {
+        this.hasImg = true
+        this.image = post.post.image.split('&&&')
+      }
+    },
+    recursionReply: function(node, replyList) {
+      if (node.reply.status === null) { // -null代表根节点
+        if (node.children == null) {
+          return
+        }
+        for (var i = 0; i < node.children.length; i++) {
+          this.recursionReply(node.children[i], replyList)
+        }
+        return
+      }
+
+      if (node.reply.status === 0) { // 0代表回复帖子的回复
+        this.firstFloorReply.info = node.reply.reply.info
+        this.firstFloorReply.replyUserPortrait = node.reply.headPortrait
+        this.firstFloorReply.replyUserName = node.reply.nickName
+        this.firstFloorReply.createTime = node.reply.reply.createTime
+        this.firstFloorReply.id = node.reply.reply.id
+      } else { // 回复回复的回复
+        this.firstFloorReply.replys.push(node.reply)
+      }
+      if (node.children == null) {
+        return
+      }
+      for (let i = 0; i < node.children.length; i++) {
+        this.recursionReply(node.children[i], replyList)
+      }
+      if (node.reply.status === 0) {
+        replyList.push(this.firstFloorReply)
+        this.firstFloorReply = {
+          replyUserPortrait: '',
+          replyUserName: '',
+          info: '',
+          createTime: '',
+          replys: []
+        }
+      }
     },
     handleBatchDelete() {
       // if (this.selectMajorId.length < 1) {
