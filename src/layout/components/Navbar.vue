@@ -11,20 +11,13 @@
         </div>
         <el-dropdown-menu slot="dropdown" class="user-dropdown">
 
-          <router-link to="/coin/index">
-            <el-dropdown-item>
-              充值
-            </el-dropdown-item>
-          </router-link>
-          <router-link to="/invite/index">
+          <router-link to="/post/examine">
+
             <el-dropdown-item divided>
-              邀请好友
+              待审核帖子
+              <el-badge v-if="showBadge" :max="99" class="mark" :value="num" />
             </el-dropdown-item>
-          </router-link>
-          <router-link to="/">
-            <el-dropdown-item divided>
-              任务
-            </el-dropdown-item>
+
           </router-link>
           <el-dropdown-item divided>
             <span style="display:block;" @click="logout">登出</span>
@@ -37,8 +30,10 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import { queryPost } from '@/api/post'
 import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
+import Utils from '@/utils/util'
 export default {
   components: {
     Breadcrumb,
@@ -46,6 +41,14 @@ export default {
   },
   data() {
     return {
+      num: '',
+      showBadge: true,
+      queryOptions: {
+        keyWords: '',
+        page: 1,
+        pageSize: 10,
+        status: 1
+      }
     }
   },
   computed: {
@@ -57,9 +60,25 @@ export default {
     ])
   },
   created() {
-
+    this.requestData()
+  },
+  mounted() {
+    var that = this
+    Utils.$on('demo', function() {
+      that.requestData()
+    })
   },
   methods: {
+    requestData() {
+      queryPost(this.queryOptions).then((res) => {
+        if (res.status === 0) {
+          this.num = res.data.total
+          if (this.num === 0) {
+            this.showBadge = false
+          }
+        }
+      })
+    },
     toggleSideBar() {
       this.$store.dispatch('app/toggleSideBar')
     },

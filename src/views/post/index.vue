@@ -23,6 +23,14 @@
           搜索
         </el-button>
       </el-form-item>
+      <el-select v-model="queryOptions.postType" clearable placeholder="帖子类型" @change="selectForm()">
+        <el-option
+          v-for="item in options"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"
+        />
+      </el-select>
       <el-button
         type="primary"
         plain
@@ -79,6 +87,8 @@
           <el-tag>
             <span v-if="scope.row.post.postType===0">失物</span>
             <span v-if="scope.row.post.postType===1">拾物</span>
+            <span v-if="scope.row.post.type===101&&scope.row.post.postType===2">匿名表白贴</span>
+            <span v-if="scope.row.post.type===1&&scope.row.post.postType===2">实名表白贴</span>
           </el-tag>
         </template>
       </el-table-column>
@@ -112,13 +122,12 @@
             查看帖子详情
           </el-button> -->
           <el-button
-            v-if="scope.row.post.status===1"
             type="primary"
             size="mini"
             @click="handlePost(scope.row)"
           >
 
-            审核
+            详情
           </el-button>
           <el-button
             type="danger"
@@ -146,54 +155,87 @@
     <el-dialog
       :title="`帖子详情`"
       :visible.sync="showpostDetail"
-      width="30%"
+      width="50%"
       @close="showpostDetail = false"
     >
       <el-form label-position="left" inline class="demo-table-expand">
-        <el-form-item label="物品名称">
+        <el-form-item v-if="post.name" label="物品名称">
           <span>{{ post.name }}</span>
         </el-form-item>
-        <el-form-item label="丢失地点">
+        <el-form-item v-if="post.lostPlace" label="丢失地点">
           <span>{{ post.lostPlace }}</span>
         </el-form-item>
-        <el-form-item label="丢失时间">
+        <el-form-item v-if="post.loseTime" label="丢失时间">
           <span>{{ post.loseTime }}</span>
         </el-form-item>
-        <el-form-item label="手机号码">
+        <el-form-item v-if="post.createTime" label="发帖时间">
+          <span>{{ post.createTime }}</span>
+        </el-form-item>
+        <el-form-item v-if="post.contact" label="手机号码">
           <span>{{ post.contact }}</span>
         </el-form-item>
         <el-form-item label="物品详情">
           <span>{{ post.details }}</span>
         </el-form-item>
-        <div class="demo-image_lazy" style="margin:0px 0px 15px 0px;">
-          <el-image v-for="url in image" :key="url" :src="url" lazy style="margin: 5px 0px" />
-        </div>
+        <div class="demo-image__preview">
+          <el-image
+            v-for="url in image"
+            :key="url"
+            fit="cover"
+            style="width: 200px; height: 200px;margin:10px 10px;"
+            :src="url"
+            :preview-src-list="image"
+          >
+            <div slot="placeholder" class="image-slot">
+              加载中<span class="dot">...</span>
+            </div>
+          </el-image></div>
         <div v-for="(item,index) in replyList" :key="index" class="block" style="margin: 20px 0px">
+          <el-divider />
           <div>
             <el-avatar :size="40" :src="item.replyUserPortrait" />
             <el-form-item>
-              <span style="margin-left:10px;"><span style="color:#2a5caa;">{{ item.replyUserName }}</span>：{{ item.info }}</span>
+              <template @mouseover="visible1" @mouseleave="visible1">
+                <el-popover
+                  placement="right-end"
+                  trigger="hover"
+                >
+                  <p>你确认删除该评论吗？</p>
+                  <div style="text-align: right; margin: 0">
+                    <el-button type="primary" size="mini" @click.prevent="removereply1(item.id,index)">删除</el-button>
+                  </div>
+                  <span slot="reference" style="margin-left:10px;"><span style="color:#2a5caa;">{{ item.replyUserName }}</span>：{{ item.info }}</span>
+                </el-popover>
+                <!-- <span style="margin-left:10px;"><span style="color:#2a5caa;">{{ item.replyUserName }}</span>：{{ item.info }}</span> -->
+                <!-- <span style="font-size:7px;display:block;margin-left:12px;">{{ item.createTime }}</span> -->
 
-              <span style="font-size:7px;display:block;margin-left:10px;">{{ item.createTime }} <el-button type="text" @click.prevent="removereply(item.id)">删除</el-button></span>
-
-            </el-form-item>
+              </template></el-form-item>
           </div>
 
-          <div v-for="(item2,index2) in item.replys" :key="index2" class="block" style="margin: 10px 40px">
+          <div v-for="(item2,index2) in item.replys" :key="index2" class="block" style="margin: 10px 40px;background:#fafafa">
             <div> <el-avatar :size="30" :src="item2.headPortrait" />
               <el-form-item>
-                <span v-if="item.id==item2.reply.replyId" style="margin-left:10px;color:#2a5caa;">{{ item2.nickName }}：{{ item2.reply.info }}</span>
-                <span v-if="item.id!=item2.reply.replyId" style="margin-left:10px;"><span style="color:#2a5caa;">{{ item2.nickName }}</span> 回复 <span style="color:#2a5caa;">{{ item2.replyedUserNickName }}</span>：{{ item2.reply.info }}</span>
-                <span style="font-size:7px;display:block;margin-left:10px;">{{ item2.reply.createTime }} <el-button type="text" @click.prevent="removereply(item2.reply.id)">删除</el-button></span>
+                <el-popover
+                  placement="right-end"
+                  trigger="hover"
+                >
+                  <p>你确认删除该评论吗？</p>
+                  <div style="text-align: right; margin: 0">
+                    <el-button type="primary" size="mini" @click.prevent="removereply2(item2.reply.id,index2,index)">删除</el-button>
+                  </div>
+                  <span v-if="item.id==item2.reply.replyId" slot="reference" style="margin-left:10px;"><span style="color:#2a5caa;">{{ item2.nickName }}</span>：{{ item2.reply.info }}</span>
+                  <span v-if="item.id!=item2.reply.replyId" slot="reference" style="margin-left:10px;"><span style="color:#2a5caa;">{{ item2.nickName }}</span> 回复 <span style="color:#2a5caa;">{{ item2.replyedUserNickName }}</span>：{{ item2.reply.info }}</span>
+                </el-popover>
               </el-form-item></div>
 
           </div>
         </div>
-
-        <el-form-item><el-button>审核不通过</el-button>
-          <el-button type="primary">审核通过</el-button>
-        </el-form-item>
-
+        <el-divider />
+        <div style="text-align: right; margin: 0">
+          <el-form-item><el-button @click="handleUnPass(post.id,2)">审核不通过</el-button>
+            <el-button type="primary" @click="handlePass(post.id,0)">审核通过</el-button>
+          </el-form-item>
+        </div>
       </el-form>
 
     </el-dialog>
@@ -216,18 +258,21 @@
   }
 </style>
 <script lang="ts">
-import { queryPost, deletePost, queryreply, deletereply } from '@/api/post'
+import { queryPost, deletePost, queryreply, deletereply, AuditPost } from '@/api/post'
 
 export default {
   name: 'Post',
   data() {
     return {
+      visible: false,
       data: [],
       selectUserId: [],
       queryOptions: {
         keyWords: '',
         page: 1,
-        pageSize: 10
+        pageSize: 10,
+        postType: ''
+
       },
       user: {},
       total: 0,
@@ -251,7 +296,18 @@ export default {
         postId: '',
         info: ''
       },
-      replyList: []
+      replyList: [],
+      options: [{
+        value: '0',
+        label: '失物'
+      }, {
+        value: '1',
+        label: '拾物'
+      }, {
+        value: '2',
+        label: '表白贴'
+      }],
+      value: ''
 
     }
   },
@@ -268,9 +324,37 @@ export default {
         }
       })
     },
-    removereply(id) {
+    selectForm() {
+      this.requestData()
+    },
+    handleUnPass(id, operation) {
+      AuditPost(id, operation).then((res) => {
+        this.$message({
+          message: '审核未通过',
+          type: 'success'
+        })
+        this.requestData()
+        this.showpostDetail = false
+      })
+    },
+    handlePass(id, operation) {
+      AuditPost(id, operation).then((res) => {
+        this.$message({
+          message: '审核已通过',
+          type: 'success'
+        })
+        this.requestData()
+        this.showpostDetail = false
+      })
+    },
+    removereply1(id, index) {
       deletereply(id).then((res) => {
-        console.log(res)
+        this.replyList.splice(index, 1)
+      })
+    },
+    removereply2(id, index2, index) {
+      deletereply(id).then((res) => {
+        this.replyList[index].replys.splice(index2, 1)
       })
     },
     handleSelect(select) {

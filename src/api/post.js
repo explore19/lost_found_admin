@@ -28,3 +28,11 @@ export function deletereply(id) {
     method: 'delete'
   })
 }
+
+export function AuditPost(id, operation) {
+  return request({
+    url: '/post/Audit',
+    params: { id: id, operation: operation },
+    method: 'get'
+  })
+}

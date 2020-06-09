@@ -35,12 +35,12 @@
       <el-col v-for="(item, index) in data" :key="index" :span="4" :offset="index > 0 ? 1 : 0">
         <el-card :body-style="{ padding: '5px' }">
           <img :src="item.image" height="200" width="100" class="image">
-          <div style="padding: 5px;">
-            <span>名称{{ item.name }}</span>
-            <span>优先级{{ item.priority }}</span>
-            <div class="bottom clearfix">
-              <el-button type="primary" icon="el-icon-edit" @click="handleEdit(item)" />
-              <el-button type="primary" icon="el-icon-delete" @click="handleDelete(item.id)" />
+          <div>
+            <div style="margin-top:8px">名称 : {{ item.name }}</div>
+            <div style="margin-top:8px">优先级 : {{ item.priority }}</div>
+            <div style="text-align: right;margin-top:8px;">
+              <el-button type="primary" size="medium " icon="el-icon-delete" @click="handleDelete(item.id)" />
+              <el-button type="primary" size="medium " icon="el-icon-edit" @click="handleEdit(item)" />
             </div>
           </div>
         </el-card>
@@ -59,7 +59,7 @@
         :rules="rules"
         label-position="top"
       >
-        <el-form-item
+        <!-- <el-form-item
           prop="name"
           label="轮播图名称"
         >
@@ -68,8 +68,8 @@
             placeholder="请输入轮播图名称"
             maxlength="10"
           />
-        </el-form-item>
-        <el-form-item
+        </el-form-item> -->
+        <!-- <el-form-item
           prop="type"
           label="轮播图类型"
         >
@@ -77,7 +77,7 @@
             <el-radio :label="0">普通轮播图</el-radio>
             <el-radio :label="1">帖子轮播图</el-radio>
           </el-radio-group>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item prop="image" label="图片上传">
           <el-upload
             class="avatar-uploader"
@@ -97,21 +97,20 @@
             v-model="editForm.priority"
             :min="0"
             :precision="0"
-            placeholder="请输入帖子Id"
           />
         </el-form-item>
-        <el-form-item v-if="editForm.type==0" label="链接">
+        <el-form-item label="链接">
           <el-input
             v-model="editForm.url"
             placeholder="请输入链接地址"
           />
         </el-form-item>
-        <el-form-item v-else label="帖子Id">
+        <!-- <el-form-item v-else label="帖子Id">
           <el-input
             v-model="editForm.postId"
             placeholder="请输入帖子Id"
           />
-        </el-form-item>
+        </el-form-item> -->
       </el-form>
       <div
         slot="footer"
@@ -134,7 +133,6 @@
 
 <script lang="ts">
 import { queryRotationChart, createRotationChart, putRotationChart, deleteRotationChart } from '@/api/rotation-chart'
-
 export default {
   name: 'RotationChart',
   data() {
@@ -147,7 +145,7 @@ export default {
         pageSize: 20
       },
       editForm: {
-        name: '',
+        // name: '',
         type: 0,
         image: '',
         postId: '',
@@ -158,8 +156,8 @@ export default {
       loading: true,
       showDialog: false,
       rules: {
-        name: [{ required: true, message: '物品名称不能为空', trigger: 'blur' }],
-        type: [{ required: true, message: '请选择轮播图类型', trigger: 'blur' }],
+        // name: [{ required: true, message: '物品名称不能为空', trigger: 'blur' }],
+        // type: [{ required: true, message: '请选择轮播图类型', trigger: 'blur' }],
         image: [{ required: true, message: '请上传图片', trigger: 'blur' }],
         priority: [{ required: true, message: '优先级不能为空', trigger: 'blur' }]
       }

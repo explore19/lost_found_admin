@@ -62,7 +62,7 @@ export const constantRoutes = [
     children: [{
       path: '/post/examine',
       name: 'NeedExamine',
-      component: () => import('@/views/post/index'),
+      component: () => import('@/views/post/AuditPost'),
       meta: { title: '待审核帖子', icon: 'form' }
     },
     {
